@@ -17,13 +17,25 @@
 
     let boxes = [];
     let boxInput;
+    let showParagraph = false;
+    let showAdded = false;
+    let showDiscarded = false;
 
     function addBox() {
         boxes = [ ...boxes, boxInput.value ]
+        boxInput.value = '';
+        showAdded = true;
+        setTimeout(() => {
+            showAdded = false;
+        }, 500);
     }
 
     function discard(value) {
         boxes = boxes.filter(box => box !== value);
+        showDiscarded = true;
+        setTimeout(() => {
+            showDiscarded = false;
+        }, 500);
     }
 </script>
 
@@ -45,19 +57,59 @@
 
 <!-- <progress value="{$progress}"></progress> -->
 <!-- <Spring></Spring> -->
+
+<button
+    on:click="{() => showParagraph = !showParagraph}">
+    Toggle
+</button>
+
+{#if showParagraph}
+    <p
+        transition:fly="{
+            { x: 300 }
+        }">
+        Can you see me?
+    </p> 
+{/if}
+
+<hr>
+
 <input type="text" bind:this="{boxInput}">
 <button on:click="{addBox}">Add</button>
-
-{#each boxes as box (box)}
-    <div
-        on:click="{discard.bind(this, box)}"
-        transition:fly="{
-            {
-                easing: cubicIn,
-                x: -200,
-                y: 0
-            }
+{#if showAdded}
+    <span
+        out:fade="{
+            { delay: 250 }
         }">
-        {box}
-    </div>
-{/each}
+        Added!
+    </span>
+{/if}
+
+{#if showDiscarded}
+    <span
+        out:fade="{
+            { delay: 250 }
+        }">
+        Discarded!
+    </span>
+{/if}
+
+{#if showParagraph}
+    {#each boxes as box (box)}
+        <div
+            on:click="{discard.bind(this, box)}"
+            transition:fly|local="{
+                {
+                    easing: cubicIn,
+                    x: -200,
+                    y: 0
+                }
+            }"
+            on:introstart="{() => console.log('Adding the element starts.')}"
+            on:introend="{() => console.log('Adding the element end.')}"
+            on:outrostart="{() => console.log('Discarding the element starts.')}"
+            on:outroend="{() => console.log('Discarding the element ends.')}">
+            {box}
+        </div>
+    {/each}
+{/if}
