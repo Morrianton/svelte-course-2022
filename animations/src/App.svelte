@@ -4,6 +4,7 @@
     import { cubicIn } from "svelte/easing";
     import Spring from "./Spring.svelte";
     import { fade, fly, slide, scale } from "svelte/transition";
+    import { flip } from "svelte/animate";  // first, last, invert, play
 
     // const progress = tweened(0, {
     //     delay: 0,
@@ -22,7 +23,7 @@
     let showDiscarded = false;
 
     function addBox() {
-        boxes = [ ...boxes, boxInput.value ]
+        boxes = [ boxInput.value, ...boxes ]
         boxInput.value = '';
         showAdded = true;
         setTimeout(() => {
@@ -65,7 +66,7 @@
 
 {#if showParagraph}
     <p
-        transition:fly="{
+        transition:fly="{  // transition allows for cancelling animations
             { x: 300 }
         }">
         Can you see me?
@@ -78,16 +79,14 @@
 <button on:click="{addBox}">Add</button>
 {#if showAdded}
     <span
-        out:fade="{
-            { delay: 250 }
-        }">
+        out:fade="{{ delay: 250 }}">
         Added!
     </span>
 {/if}
 
 {#if showDiscarded}
     <span
-        out:fade="{
+        out:fade="{  // in and out do not allow for cancellable animations
             { delay: 250 }
         }">
         Discarded!
@@ -108,7 +107,8 @@
             on:introstart="{() => console.log('Adding the element starts.')}"
             on:introend="{() => console.log('Adding the element end.')}"
             on:outrostart="{() => console.log('Discarding the element starts.')}"
-            on:outroend="{() => console.log('Discarding the element ends.')}">
+            on:outroend="{() => console.log('Discarding the element ends.')}"
+            animate:flip="{{ duration: 300 }}">
             {box}
         </div>
     {/each}
